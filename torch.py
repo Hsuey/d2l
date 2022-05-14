@@ -2710,6 +2710,18 @@ def update_G(Z, net_D, net_G, loss, trainer_G):
     trainer_G.step()
     return loss_G
 
+def timePrint(bg, ed, file = None, city: "American or China" = 'American', timeDiff: "seconds"=None ):
+    diff = ed - bg # 调整时区 + 8 hours: 8 * 60 * 60 = 28800
+    if timeDiff is None:
+            if city is "American":
+                timeDiff = 28800 # 调整时区 + 8 hours: 8 * 60 * 60 = 28800
+            else:
+                timeDiff = 0
+    s = f"executed in {int(diff // 60)}m {int(diff % 60)}s, finished {time.asctime(time.localtime(time.time() + timeDiff))}"
+    print(s)
+    if file is not None:
+        print(s, file=file)
+
 d2l.DATA_HUB['pokemon'] = (d2l.DATA_URL + 'pokemon.zip',
                            'c065c0e2593b8b161a2d7873e42418bf6a21106c')# Alias defined in config.ini
 
