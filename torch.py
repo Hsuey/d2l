@@ -223,11 +223,32 @@ def get_dataloader_workers():
     Defined in :numref:`sec_fashion_mnist`"""
     return 0
 
-def load_data_fashion_mnist(batch_size, resize=None):
+def load_data_mnist(batch_size, resize=None, addTrans = None):
+    """Download the MNIST dataset and then load it into memory.
+
+    Defined in :numref:`sec_mnist`"""
+    trans = [transforms.ToTensor()]
+    if addTrans != None:
+        trans = trans + addTrans
+    if resize:
+        trans.insert(0, transforms.Resize(resize))
+    trans = transforms.Compose(trans)
+    mnist_train = torchvision.datasets.MNIST(
+        root="../data", train=True, transform=trans, download=True)
+    mnist_test = torchvision.datasets.MNIST(
+        root="../data", train=False, transform=trans, download=True)
+    return (data.DataLoader(mnist_train, batch_size, shuffle=True,
+                            num_workers=get_dataloader_workers()),
+            data.DataLoader(mnist_test, batch_size, shuffle=False,
+                            num_workers=get_dataloader_workers()))
+
+def load_data_fashion_mnist(batch_size, resize=None, addTrans = None):
     """Download the Fashion-MNIST dataset and then load it into memory.
 
     Defined in :numref:`sec_fashion_mnist`"""
     trans = [transforms.ToTensor()]
+    if addTrans != None:
+        trans = trans + addTrans
     if resize:
         trans.insert(0, transforms.Resize(resize))
     trans = transforms.Compose(trans)
@@ -2721,6 +2742,22 @@ def timePrint(bg, ed, file = None, city: "American or China" = 'American', timeD
     print(s)
     if file is not None:
         print(s, file=file)
+
+def zipDir(dirpath, outFullName):
+    """
+    压缩指定文件夹
+    :param dirpath: 目标文件夹路径
+    :param outFullName: 压缩文件保存路径+xxxx.zip
+    :return: 无
+    """
+    zip = zipfile.ZipFile(outFullName, "w", zipfile.ZIP_DEFLATED)
+    for path, dirnames, filenames in os.walk(dirpath):
+        # 去掉目标跟路径，只对目标文件夹下边的文件及文件夹进行压缩
+        fpath = path.replace(dirpath, '')
+ 
+        for filename in filenames:
+            zip.write(os.path.join(path, filename), os.path.join(fpath, filename))
+    zip.close()
 
 d2l.DATA_HUB['pokemon'] = (d2l.DATA_URL + 'pokemon.zip',
                            'c065c0e2593b8b161a2d7873e42418bf6a21106c')# Alias defined in config.ini
